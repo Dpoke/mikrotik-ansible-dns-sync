@@ -1,0 +1,37 @@
+---
+#- name: system command
+#  routeros_command:
+#    commands: /ip dns static add name= address=
+#- name: Get dns Records
+#  command: bash -c "cat roles/dns/files/get_dns.rsc | ssh -l admin -T {{inventory_hostname}}"
+#  register: dns_print
+
+- name: Get dns Records
+  routeros_command:
+    commands: /ip dns static print without-paging
+  register: dns_records
+
+- name: Combine dns dict
+  set_fact:
+    dnsdict: "{{ dnsdict | default([]) + [ { 'id': item.split()[0], 'name': item.split()[1], 'address': item.split()[3] } ] }}"
+  with_items: "{{ dns_records.stdout_lines.0 | select('match', '^ *(\\d+)') | list }}"
+
+- name: add items
+  routeros_command:
+   commands: /ip dns static add name="{{ item.name }}" address="{{ item.address }}"
+  with_items: "{{ mydns }}"
+  when: dnsdict | selectattr('name', 'equalto', item.name) | selectattr('address', 'equalto', item.address) | list | count == 0
+
+- name: delete items
+  routeros_command:
+    commands: /ip dns static remove {{ item.id }}
+  loop: "{{ dnsdict }}"
+  when: mydns | selectattr('name', 'equalto', item.name) | selectattr('address', 'equalto', item.address) | list | count == 0
+
+#- name: debug mydns items
+#  debug: var=item.name
+#  with_items: "{{ mydns }}"
+
+#- name: debug mydns items
+#  debug: var=item.name
+#  with_items: "{{ dnsdict }}"

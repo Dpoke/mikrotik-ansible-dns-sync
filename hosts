@@ -1,0 +1,7 @@
+[routers_msk]
+router ip_addr=192.168.99.1
+[routers_iv]
+iv-router ip_addr=192.168.74.1
+[routers_all:children]
+routers_msk
+routers_iv

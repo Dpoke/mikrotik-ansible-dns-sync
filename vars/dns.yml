@@ -1,0 +1,5 @@
+mydns:
+
+     - { name: "iv-router", address: "192.168.74.1" }
+     - { name: "iv-server", address: "192.168.74.10" }
+     - { name: "server", address: "192.168.99.10" }

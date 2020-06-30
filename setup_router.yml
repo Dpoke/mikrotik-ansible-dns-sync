@@ -1,0 +1,9 @@
+---
+- hosts: routers_all
+  remote_user: admin
+  become: yes
+  vars_files:
+    - "./vars/routers.yml"
+    - "./vars/dns.yml"
+  roles:
+    - dns
